@@ -135,16 +135,18 @@ data1 = data.dropna(subset=['college'])
 colleges = list(np.unique(data1['college']))
 
 
-def create_slide_bar(key, text="Drag the point on the slide bar to choose seasons range:"):
+def create_slide_bar(key, text="Drag the points on the slide bar to choose seasons range:"):
     _, c, _ = st.columns((0.1, 2, 0.5))
     with c:
         selected = st.select_slider(text, seasons, key=f's{key}', value=(1996, 2019))
     return selected
 
 
+# Title and Description
+
+
 # First plot
 # Slide bar
-st.markdown("**Drag the points on the slide bar to choose seasons range:**")
 selected_season = create_slide_bar(1)
 
 # Teams filter
@@ -172,7 +174,7 @@ with col2:
         st.write('')
 
     st.write('**Choose:**')
-
+    features = []
     show_line1 = st.checkbox('Points', value=False)
     show_line3 = st.checkbox('Rebounds', value=False)
     show_line4 = st.checkbox('Assists', value=False)
@@ -194,7 +196,7 @@ with col:
                             hovertemplate='Season: %{x}<br>Points: %{customdata[4]}')
         trace2 = go.Scatter(x=seasons1, y=list(filtered_data['height']), name='Height',
                             hovertemplate='Season: %{x}<br>Height: %{customdata[0]}')
-        trace3 = go.Scatter(x=seasons, y=list(filtered_data['rebb']), name='Rebounds',
+        trace3 = go.Scatter(x=seasons1, y=list(filtered_data['rebb']), name='Rebounds',
                             hovertemplate='Season: %{x}<br>Rebounds: %{customdata[2]}')
         trace4 = go.Scatter(x=seasons1, y=list(filtered_data['astt']), name='Assists',
                             hovertemplate='Season: %{x}<br>Assists: %{customdata[3]}')
@@ -218,7 +220,7 @@ with col:
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top'},
-            xaxis_title='Season', yaxis_title='Normalized Value',
+            xaxis_title='NBA Season', yaxis_title='Normalized Value',
             annotations=[
                dict(
                    x=0.5,
@@ -232,28 +234,32 @@ with col:
            ]
                            )
         fig = go.Figure(layout=layout)
-
         if show_line1:
             fig.add_trace(trace1)
+            features.append('ptss')
+            print(features)
         if show_line2:
             fig.add_trace(trace2)
+            features.append('height')
         if show_line3:
             fig.add_trace(trace3)
+            features.append('rebb')
         if show_line4:
             fig.add_trace(trace4)
+            features.append('astt')
         if show_line5:
             fig.add_trace(trace5)
+            features.append('weight')
 
         # Adding vertical lines
-        if not selected_team:
-            y1 = 0.13
-        else:
-            y1 = 0.5
+        calc_df = filtered_data[features]
+        y0 = calc_df.min().min() - 0.01
+        y1 = calc_df.max().max() + 0.01
         for year in range(selected_season[0], selected_season[1]):
             fig.add_shape(
                 type="line",
                 x0=year,
-                y0=-0.1,
+                y0=y0,
                 x1=year,
                 y1=y1,
                 line=dict(color="rgba(200, 200, 200, 0.5)", width=1),
@@ -372,7 +378,6 @@ with col:
 st.markdown("#### **Countries Bars Visualization**")
 # Slide bar
 selected_season3 = create_slide_bar(3)
-print(selected_season3)
 # Countries filter
 _, col1, _, col2, _ = st.columns((0.1, 1.4, .1, 2.2, 0.1))
 with col1:
@@ -403,6 +408,8 @@ with col:
         fig3, ax = plt.subplots()
         ax.axis('off')
         ax.set_xlim([1996, 2019])
+        ax.set_title('No Data To Display!', fontsize=20, ha='center')
+
     else:
         filtered_data3 = filtered_data3[filtered_data3['country'] != 'USA']
         filtered_data3 = filtered_data3.groupby(['season', 'country']).agg({'player_height': 'mean', 'player_weight': 'mean', 'player_name': 'nunique'}).reset_index()
@@ -414,7 +421,13 @@ with col:
                       hover_data=['player_height', 'player_weight'])
 
         fig3.update_layout(
-            title="Number of Players by Season and Country",
+            title={
+                'text': 'Number of Players by Season and Country',
+                'x': 0.45,
+                'y': 1,
+                'xanchor': 'center',
+                'yanchor': 'top',
+                'font': {'size': 18}},
             title_x=0.4,  # Position the title at the center of the x-axis
             title_y=0.9,  # Position the title at the top of the y-axis
             xaxis=dict(
@@ -422,7 +435,9 @@ with col:
                 tick0=min(filtered_data3['season']),  # Set the starting tick to the minimum year value
                 dtick=1,  # Set the tick interval to 1 year
                 tickangle=45,  # Rotate the tick labels by 45 degrees
-            )
+            ),
+            xaxis_title='NBA Season',
+            yaxis_title='Number of Players',
         )
         x_ticks = sorted(list(set(filtered_data3['season'])))
         for x in x_ticks:
@@ -466,6 +481,8 @@ with col:
         fig4, ax = plt.subplots()
         ax.axis('off')
         ax.set_xlim([1996, 2019])
+        ax.set_title('No Data To Display!', fontsize=20, ha='center')
+
     else:
         filtered_data4 = filtered_data4.groupby(['season', 'college']).agg({'player_height': 'mean', 'player_weight': 'mean', 'player_name': 'nunique'}).reset_index()
         filtered_data4.rename(columns={'player_name': 'Players'}, inplace=True)
@@ -476,7 +493,13 @@ with col:
                       hover_data=['player_height', 'player_weight'])
 
         fig4.update_layout(
-            title="Number of Players by Season and Colleges",
+            title={
+                'text': 'Number of Players by Season and Colleges',
+                'x': 0.45,
+                'y': 1,
+                'xanchor': 'center',
+                'yanchor': 'top',
+                'font': {'size': 18}},
             title_x=0.4,  # Position the title at the center of the x-axis
             title_y=0.9,  # Position the title at the top of the y-axis
             xaxis=dict(
@@ -484,7 +507,9 @@ with col:
                 tick0=min(filtered_data4['season']),  # Set the starting tick to the minimum year value
                 dtick=1,  # Set the tick interval to 1 year
                 tickangle=45,  # Rotate the tick labels by 45 degrees
-            )
+            ),
+            xaxis_title='NBA Season',
+            yaxis_title='Number of Players',
         )
         x_ticks = sorted(list(set(filtered_data4['season'])))
         for x in x_ticks:
