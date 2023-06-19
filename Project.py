@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import flagpy as fp
 
 
 st.set_page_config(page_title='NBA statistics',
@@ -12,55 +13,124 @@ st.set_page_config(page_title='NBA statistics',
                    layout="wide")
 
 # Data Loading
-data = pd.read_csv('Data/all_seasons.csv')
-country_codes = pd.read_csv('Data/country_code.csv')
-
-# Data preprocessing
-data['season'] = data['season'].str.split('-').str[0].astype(int)
-data.loc[data['team_abbreviation'] == 'VAN', 'team_abbreviation'] = 'MEM'
-data.loc[data['team_abbreviation'] == 'SEA', 'team_abbreviation'] = 'OKC'
-data.loc[data['team_abbreviation'] == 'NOK', 'team_abbreviation'] = 'NOP'
-data.loc[data['team_abbreviation'] == 'CHH', 'team_abbreviation'] = 'CHA'
-data.loc[data['team_abbreviation'] == 'NJN', 'team_abbreviation'] = 'BKN'
-data.loc[data['team_abbreviation'] == 'NOH', 'team_abbreviation'] = 'NOP'
-
-country_codes = country_codes.drop(['code_2digit'], axis=1)
-country_codes.rename(columns={'Country_name': 'country'}, inplace=True)
-data = pd.merge(data, country_codes, on='country', how='left')
-data.rename(columns={'code_3digit': 'code'}, inplace=True)
-data['code'] = data['code'].fillna('USA')
-
-
-def norm(old, new):
-    mean_value = data[old].mean()
-    std_value = data[old].std()
-    data[new] = (data[old] - mean_value) / std_value
-
-
-norm('player_height', 'height')
-norm('player_weight', 'weight')
-norm('reb', 'rebb')
-norm('ast', 'astt')
-norm('pts', 'ptss')
+data = pd.read_csv('Data/ProccessedData.csv')
 
 # Parameters
 seasons = list(np.unique(data['season']))
 
-teams = list(np.unique(data['team_abbreviation']))
+nba_teams = {
+    'Atlanta Hawks': 'ATL',
+    'Boston Celtics': 'BOS',
+    'Brooklyn Nets': 'BKN',
+    'Charlotte Hornets': 'CHA',
+    'Chicago Bulls': 'CHI',
+    'Cleveland Cavaliers': 'CLE',
+    'Dallas Mavericks': 'DAL',
+    'Denver Nuggets': 'DEN',
+    'Detroit Pistons': 'DET',
+    'Golden State Warriors': 'GSW',
+    'Houston Rockets': 'HOU',
+    'Indiana Pacers': 'IND',
+    'Los Angeles Clippers': 'LAC',
+    'Los Angeles Lakers': 'LAL',
+    'Memphis Grizzlies': 'MEM',
+    'Miami Heat': 'MIA',
+    'Milwaukee Bucks': 'MIL',
+    'Minnesota Timberwolves': 'MIN',
+    'New Orleans Pelicans': 'NOP',
+    'New York Knicks': 'NYK',
+    'Oklahoma City Thunder': 'OKC',
+    'Orlando Magic': 'ORL',
+    'Philadelphia 76ers': 'PHI',
+    'Phoenix Suns': 'PHX',
+    'Portland Trail Blazers': 'POR',
+    'Sacramento Kings': 'SAC',
+    'San Antonio Spurs': 'SAS',
+    'Toronto Raptors': 'TOR',
+    'Utah Jazz': 'UTA',
+    'Washington Wizards': 'WAS'
+}
+country_names = {
+    'AGO': 'Angola',
+    'ARG': 'Argentina',
+    'AUS': 'Australia',
+    'AUT': 'Austria',
+    'BHS': 'Bahamas',
+    'BIH': 'Bosnia and Herzegovina',
+    'BLZ': 'Belize',
+    'BRA': 'Brazil',
+    'CAN': 'Canada',
+    'CHE': 'Switzerland',
+    'CHN': 'China',
+    'CMR': 'Cameroon',
+    'CZE': 'Czech Republic',
+    'DEU': 'Germany',
+    'DOM': 'Dominican Republic',
+    'EGY': 'Egypt',
+    'ESP': 'Spain',
+    'FIN': 'Finland',
+    'FRA': 'France',
+    'GAB': 'Gabon',
+    'GBR': 'United Kingdom',
+    'GEO': 'Georgia',
+    'GHA': 'Ghana',
+    'GIN': 'Guinea',
+    'GRC': 'Greece',
+    'HRV': 'Croatia',
+    'HTI': 'Haiti',
+    'IRL': 'Ireland',
+    'ISR': 'Israel',
+    'ITA': 'Italy',
+    'JAM': 'Jamaica',
+    'JPN': 'Japan',
+    'LTU': 'Lithuania',
+    'LVA': 'Latvia',
+    'MEX': 'Mexico',
+    'MLI': 'Mali',
+    'MNE': 'Montenegro',
+    'NGA': 'Nigeria',
+    'NLD': 'Netherlands',
+    'NZL': 'New Zealand',
+    'PAN': 'Panama',
+    'POL': 'Poland',
+    'PRI': 'Puerto Rico',
+    'SDN': 'Sudan',
+    'SEN': 'Senegal',
+    'SRB': 'Serbia',
+    'SSD': 'South Sudan',
+    'SVN': 'Slovenia',
+    'SWE': 'Sweden',
+    'TTO': 'Trinidad and Tobago',
+    'TUN': 'Tunisia',
+    'TUR': 'Turkey',
+    'UKR': 'Ukraine',
+    'URY': 'Uruguay',
+    'USA': 'United States of America'
+}
+
+
+teams = list(np.unique(data['team']))
 teams_dict = {}
 for t in teams:
-    teams_dict[t] = f'NBA_LOGOS/{t}.png'
+    teams_dict[t] = f'NBA_LOGOS/{nba_teams[t]}.png'
+
+countries = list(np.unique(data['country']))
+countries.remove('USA')
+
+data1 = data.dropna(subset=['college'])
+colleges = list(np.unique(data1['college']))
 
 
-def create_slide_bar(key):
+def create_slide_bar(key, text="Drag the point on the slide bar to choose seasons range:", low=1996, high=2019):
     _, c, _ = st.columns((0.1, 2, 0.5))
     with c:
-        selected = st.select_slider("Drag the point on the slide bar to choose seasons range:", seasons, key=f's{key}')
+        selected = st.select_slider(text, seasons, key=f's{key}', value=(low, high))
     return selected
 
 
 # First plot
 # Slide bar
+st.markdown("**Drag the point on the slide bar to choose seasons range:**")
 selected_season = create_slide_bar(1)
 
 # Teams filter
@@ -78,9 +148,9 @@ with col2:
 
 # Create the graph
 if not selected_team:
-    filtered_data = data.loc[data['season'] <= selected_season]
+    filtered_data = data.loc[(data['season'] <= selected_season[1]) & (data['season'] >= selected_season[0])]
 else:
-    filtered_data = data.loc[(data['season'] <= selected_season) & (data['team_abbreviation'].isin(selected_team))]
+    filtered_data = data.loc[(data['season'] <= selected_season[1]) & (data['season'] >= selected_season[0]) & (data['team'].isin(selected_team))]
 
 _, col, _, col2, _ = st.columns((0.1, 3.3, 0.1, 0.7, 0.1))
 with col2:
@@ -104,7 +174,7 @@ with col:
     else:
         filtered_data = filtered_data.groupby('season')[['ptss', 'rebb', 'astt', 'height', 'weight', 'pts', 'reb', 'ast',
                                                          'player_height', 'player_weight']].mean().reset_index()
-
+        seasons = [i for i in range(selected_season[0], selected_season[1])]
         trace1 = go.Scatter(x=seasons, y=list(filtered_data['ptss']), name='Points',
                             hovertemplate='Season: %{x}<br>Points: %{customdata[4]}')
         trace2 = go.Scatter(x=seasons, y=list(filtered_data['height']), name='Height',
@@ -139,7 +209,7 @@ with col:
                    y=1.1,
                    xref='paper',
                    yref='paper',
-                   text=f'Up to {selected_season} season for the selected teams',
+                   text=f'Between {selected_season[0]} season to {selected_season[1]} season for the selected teams',
                    showarrow=False,
                    font=dict(size=16)
                )
@@ -163,7 +233,7 @@ with col:
             y1 = 0.13
         else:
             y1 = 0.5
-        for year in range(1996, selected_season+1):
+        for year in range(selected_season[0], selected_season[1]):
             fig.add_shape(
                 type="line",
                 x0=year,
@@ -179,7 +249,9 @@ with col:
 st.markdown("#### **Map Visualization**")
 
 # create slide bar
-selected_season2 = create_slide_bar(2)
+_, c, _ = st.columns((0.1, 2, 0.5))
+with c:
+    selected_season2 = st.select_slider("Drag the point on the slide bar to choose seasons range:", seasons, key=f's{2}')
 
 # create selector
 select = st.radio('Select display:', (f'Until {selected_season2} season', f'Only {selected_season2} season'), horizontal=True)
@@ -191,11 +263,9 @@ else:
     filtered_data2 = data.loc[data['season'] == selected_season2]
 
 
-# # Create map plot
+# Create map plot
 _, col, _, col2, _ = st.columns((0.1, 3.3, 0.1, 0.7, 0.1))
 with col2:
-    # for _ in range(10):
-    #     st.write('')
 
     st.write('**Choose map display:**')
     usa = st.checkbox('USA', value=True)
@@ -224,7 +294,7 @@ with col2:
 
     elif world:
         filtered = filtered_data2.loc[data['code'] != 'USA']
-        filtered = filtered = filtered.groupby('code').agg({
+        filtered = filtered.groupby('code').agg({
             'pts': 'mean',
             'reb': 'mean',
             'ast': 'mean',
@@ -243,9 +313,146 @@ with col:
         fig = go.Figure(go.Choropleth(geojson=empty_geojson))
 
     else:
-        filtered = pd.merge(filtered, data[['country', 'code']], on='code', how='left')
+        filtered['country'] = filtered['code'].map(country_names)
         fig = px.choropleth(filtered, locations='code', color='Players', hover_name='country',
                             hover_data=['pts', 'reb', 'ast', 'player_weight', 'player_height'],
                             color_continuous_scale='Viridis')
     st.plotly_chart(fig, use_container_width=True)
+
+
+# Third plot
+st.markdown("#### **Countries Bars Visualization**")
+# Slide bar
+selected_season3 = create_slide_bar(3)
+
+# Countries filter
+_, col1, _, col2, _ = st.columns((0.1, 1.4, .1, 2.2, 0.1))
+with col1:
+    selected_countries = st.multiselect('Select countries to display:', countries)
+with col2:
+    sel_countries = []
+    if selected_countries:
+        for country in selected_countries:
+            try:
+                sel_countries.append(fp.get_flag_img(country))
+            except:
+                sel_countries.append(f'Countries/{country}.png')
+    else:
+        sel_countries.append('NBA_LOGOS/NBA_LOGO.jpg')
+    st.image(sel_countries, width=80)
+
+# Data filtering
+if not selected_countries:
+    filtered_data3 = data.loc[(data['season'] <= selected_season3) & (data['country'] == 'None')]
+else:
+    filtered_data3 = data.loc[(data['season'] <= selected_season3) & (data['country'].isin(selected_countries))]
+
+# Create Bar plot
+_, col, _ = st.columns((0.1, 3, 0.1))
+
+with col:
+    if len(filtered_data3) == 0:
+        fig3, ax = plt.subplots()
+        ax.axis('off')
+        ax.set_xlim([1996, 2019])
+    else:
+        filtered_data3 = filtered_data3[filtered_data3['country'] != 'USA']
+        filtered_data3 = filtered_data3.groupby(['season', 'country']).agg({'player_height': 'mean', 'player_weight': 'mean', 'player_name': 'nunique'}).reset_index()
+        filtered_data3.rename(columns={'player_name': 'Players'}, inplace=True)
+        filtered_data3['player_height'] = filtered_data3['player_height'].apply(lambda x: str(round(x, 2)) + " CM")
+        filtered_data3['player_weight'] = filtered_data3['player_weight'].apply(lambda x: str(round(x, 2)) + " KG")
+
+        fig3 = px.bar(filtered_data3, x='season', color='country', y='Players', barmode='group',
+                      hover_data=['player_height', 'player_weight'])
+
+        fig3.update_layout(
+            title="Number of Players by Season and Country",
+            title_x=0.4,  # Position the title at the center of the x-axis
+            title_y=0.9,  # Position the title at the top of the y-axis
+            xaxis=dict(
+                tickmode='linear',  # Use linear mode for continuous range
+                tick0=min(filtered_data3['season']),  # Set the starting tick to the minimum year value
+                dtick=1,  # Set the tick interval to 1 year
+                tickangle=45,  # Rotate the tick labels by 45 degrees
+            )
+        )
+        x_ticks = sorted(list(set(filtered_data3['season'])))
+        for x in x_ticks:
+            fig3.add_shape(
+                type="line",
+                xref="x",
+                yref="paper",
+                x0=x+0.5,
+                x1=x+0.5,
+                y0=(-0.03),
+                y1=0.03,
+                line=dict(
+                    color="black",
+                    width=2,
+                )
+            )
+
+    st.plotly_chart(fig3, use_container_width=True)
+
+
+st.markdown("#### **Colleges Bars Visualization**")
+# Slide bar
+selected_season4 = create_slide_bar(4)
+
+# Colleges filter
+_, col, _ = st.columns((0.01, 1.4, 0.1))
+with col:
+    selected_colleges = st.multiselect('Select Colleges to display:', colleges)
+
+# Data filtering
+if not selected_colleges:
+    filtered_data4 = data1.loc[(data1['season'] <= selected_season4) & (data1['college'] == 'None')]
+else:
+    filtered_data4 = data1.loc[(data1['season'] <= selected_season4) & (data1['college'].isin(selected_colleges))]
+
+# Create Bar plot
+_, col, _ = st.columns((0.1, 3, 0.1))
+
+with col:
+    if len(filtered_data4) == 0:
+        fig4, ax = plt.subplots()
+        ax.axis('off')
+        ax.set_xlim([1996, 2019])
+    else:
+        filtered_data4 = filtered_data4.groupby(['season', 'college']).agg({'player_height': 'mean', 'player_weight': 'mean', 'player_name': 'nunique'}).reset_index()
+        filtered_data4.rename(columns={'player_name': 'Players'}, inplace=True)
+        filtered_data4['player_height'] = filtered_data4['player_height'].apply(lambda x: str(round(x, 2)) + " CM")
+        filtered_data4['player_weight'] = filtered_data4['player_weight'].apply(lambda x: str(round(x, 2)) + " KG")
+
+        fig4 = px.bar(filtered_data4, x='season', color='college', y='Players', barmode='group',
+                      hover_data=['player_height', 'player_weight'])
+
+        fig4.update_layout(
+            title="Number of Players by Season and Colleges",
+            title_x=0.4,  # Position the title at the center of the x-axis
+            title_y=0.9,  # Position the title at the top of the y-axis
+            xaxis=dict(
+                tickmode='linear',  # Use linear mode for continuous range
+                tick0=min(filtered_data4['season']),  # Set the starting tick to the minimum year value
+                dtick=1,  # Set the tick interval to 1 year
+                tickangle=45,  # Rotate the tick labels by 45 degrees
+            )
+        )
+        x_ticks = sorted(list(set(filtered_data4['season'])))
+        for x in x_ticks:
+            fig4.add_shape(
+                type="line",
+                xref="x",
+                yref="paper",
+                x0=x+0.5,
+                x1=x+0.5,
+                y0=(-0.03),
+                y1=0.03,
+                line=dict(
+                    color="black",
+                    width=2,
+                )
+            )
+
+    st.plotly_chart(fig4, use_container_width=True)
 
