@@ -105,7 +105,21 @@ country_names = {
     'TUR': 'Turkey',
     'UKR': 'Ukraine',
     'URY': 'Uruguay',
-    'USA': 'United States of America'
+    'USA': 'United States of America',
+    'RUS': 'Russia',
+    'COD': 'Democratic Republic of the Congo',
+    'VIR': 'U.S. Virgin Islands',
+    'COG': 'Congo',
+    'VCT': 'St. Vincent & Grenadines',
+    'YUG': 'Yugoslavia',
+    'VEN': 'Venezuela',
+    'IRN': 'Iran',
+    'TZA': 'Tanzania',
+    'SCO': 'Scotland',
+    'KOR': 'South Korea',
+    'SUN': 'USSR',
+    'MKD': 'Macedonia',
+    'CPV': 'Cabo Verde'
 }
 
 
@@ -121,16 +135,16 @@ data1 = data.dropna(subset=['college'])
 colleges = list(np.unique(data1['college']))
 
 
-def create_slide_bar(key, text="Drag the point on the slide bar to choose seasons range:", low=1996, high=2019):
+def create_slide_bar(key, text="Drag the point on the slide bar to choose seasons range:"):
     _, c, _ = st.columns((0.1, 2, 0.5))
     with c:
-        selected = st.select_slider(text, seasons, key=f's{key}', value=(low, high))
+        selected = st.select_slider(text, seasons, key=f's{key}', value=(1996, 2019))
     return selected
 
 
 # First plot
 # Slide bar
-st.markdown("**Drag the point on the slide bar to choose seasons range:**")
+st.markdown("**Drag the points on the slide bar to choose seasons range:**")
 selected_season = create_slide_bar(1)
 
 # Teams filter
@@ -166,24 +180,25 @@ with col2:
     show_line5 = st.checkbox('Weight', value=False)
 
 with col:
-    if len(filtered_data) == 0:
+    if len(filtered_data) == 0 or not(show_line1 or show_line3 or show_line4 or show_line2 or show_line5):
         fig, ax = plt.subplots()
         ax.axis('off')
         ax.set_xlim([1996, 2019])
+        ax.set_title('No Data To Display!', fontsize=20, ha='center')
 
     else:
         filtered_data = filtered_data.groupby('season')[['ptss', 'rebb', 'astt', 'height', 'weight', 'pts', 'reb', 'ast',
                                                          'player_height', 'player_weight']].mean().reset_index()
-        seasons = [i for i in range(selected_season[0], selected_season[1])]
-        trace1 = go.Scatter(x=seasons, y=list(filtered_data['ptss']), name='Points',
+        seasons1 = [i for i in range(selected_season[0], selected_season[1])]
+        trace1 = go.Scatter(x=seasons1, y=list(filtered_data['ptss']), name='Points',
                             hovertemplate='Season: %{x}<br>Points: %{customdata[4]}')
-        trace2 = go.Scatter(x=seasons, y=list(filtered_data['height']), name='Height',
+        trace2 = go.Scatter(x=seasons1, y=list(filtered_data['height']), name='Height',
                             hovertemplate='Season: %{x}<br>Height: %{customdata[0]}')
         trace3 = go.Scatter(x=seasons, y=list(filtered_data['rebb']), name='Rebounds',
                             hovertemplate='Season: %{x}<br>Rebounds: %{customdata[2]}')
-        trace4 = go.Scatter(x=seasons, y=list(filtered_data['astt']), name='Assists',
+        trace4 = go.Scatter(x=seasons1, y=list(filtered_data['astt']), name='Assists',
                             hovertemplate='Season: %{x}<br>Assists: %{customdata[3]}')
-        trace5 = go.Scatter(x=seasons, y=list(filtered_data['weight']), name='Weight',
+        trace5 = go.Scatter(x=seasons1, y=list(filtered_data['weight']), name='Weight',
                             hovertemplate='Season: %{x}<br>Weight: %{customdata[1]}')
 
         # Assign custom data to each trace
@@ -198,6 +213,7 @@ with col:
 
         layout = go.Layout(width=1000, height=600, title={
             'text': 'Comparison between the physicality of the players and their performance',
+            'font': {'size': 18},
             'y': 0.95,
             'x': 0.5,
             'xanchor': 'center',
@@ -211,7 +227,7 @@ with col:
                    yref='paper',
                    text=f'Between {selected_season[0]} season to {selected_season[1]} season for the selected teams',
                    showarrow=False,
-                   font=dict(size=16)
+                   font=dict(size=20)
                )
            ]
                            )
@@ -255,13 +271,13 @@ with c:
 
 # create selector
 select = st.radio('Select display:', (f'Until {selected_season2} season', f'Only {selected_season2} season'), horizontal=True)
-
+s = ""
 if select == f'Until {selected_season2} season':
     filtered_data2 = data.loc[data['season'] <= selected_season2]
-
+    s += f'Until {selected_season2} season'
 else:
     filtered_data2 = data.loc[data['season'] == selected_season2]
-
+    s += f'For {selected_season2} season'
 
 # Create map plot
 _, col, _, col2, _ = st.columns((0.1, 3.3, 0.1, 0.7, 0.1))
@@ -312,11 +328,43 @@ with col:
         # Create the figure with an empty choropleth trace
         fig = go.Figure(go.Choropleth(geojson=empty_geojson))
 
+        # Add a title to the figure
+        fig.update_layout(
+            title_text='No Data To Display!',
+            title_font_size=20,
+        )
+
     else:
         filtered['country'] = filtered['code'].map(country_names)
+        filtered['player_height'] = filtered['player_height'].apply(lambda x: str(round(x, 2)) + " CM")
+        filtered['player_weight'] = filtered['player_weight'].apply(lambda x: str(round(x, 2)) + " KG")
+        filtered['pts'] = filtered['pts'].apply(lambda x: round(x, 2))
+        filtered['reb'] = filtered['reb'].apply(lambda x: round(x, 2))
+        filtered['ast'] = filtered['ast'].apply(lambda x: round(x, 2))
+
         fig = px.choropleth(filtered, locations='code', color='Players', hover_name='country',
                             hover_data=['pts', 'reb', 'ast', 'player_weight', 'player_height'],
-                            color_continuous_scale='Viridis')
+                            color_continuous_scale='Viridis_r')
+        fig.update_layout(title={
+            'text': 'Map showing the amount of players from each country',
+            'x': 0.45,
+            'y': 1,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': {'size': 18}},
+            width=800, height=600,
+            annotations=[
+               dict(
+                   x=0.5,
+                   y=1.1,
+                   xref='paper',
+                   yref='paper',
+                   text=s,
+                   showarrow=False,
+                   font=dict(size=18)
+               )
+           ])
+
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -324,7 +372,7 @@ with col:
 st.markdown("#### **Countries Bars Visualization**")
 # Slide bar
 selected_season3 = create_slide_bar(3)
-
+print(selected_season3)
 # Countries filter
 _, col1, _, col2, _ = st.columns((0.1, 1.4, .1, 2.2, 0.1))
 with col1:
@@ -343,9 +391,9 @@ with col2:
 
 # Data filtering
 if not selected_countries:
-    filtered_data3 = data.loc[(data['season'] <= selected_season3) & (data['country'] == 'None')]
+    filtered_data3 = data.loc[(data['season'] <= selected_season3[1]) & (data['season'] >= selected_season3[0]) & (data['country'] == 'None')]
 else:
-    filtered_data3 = data.loc[(data['season'] <= selected_season3) & (data['country'].isin(selected_countries))]
+    filtered_data3 = data.loc[(data['season'] <= selected_season3[1]) & (data['season'] >= selected_season3[0]) & (data['country'].isin(selected_countries))]
 
 # Create Bar plot
 _, col, _ = st.columns((0.1, 3, 0.1))
@@ -394,7 +442,7 @@ with col:
 
     st.plotly_chart(fig3, use_container_width=True)
 
-
+# Fourth plot
 st.markdown("#### **Colleges Bars Visualization**")
 # Slide bar
 selected_season4 = create_slide_bar(4)
@@ -406,9 +454,9 @@ with col:
 
 # Data filtering
 if not selected_colleges:
-    filtered_data4 = data1.loc[(data1['season'] <= selected_season4) & (data1['college'] == 'None')]
+    filtered_data4 = data1.loc[(data['season'] <= selected_season4[1]) & (data['season'] >= selected_season4[0]) & (data1['college'] == 'None')]
 else:
-    filtered_data4 = data1.loc[(data1['season'] <= selected_season4) & (data1['college'].isin(selected_colleges))]
+    filtered_data4 = data1.loc[(data['season'] <= selected_season4[1]) & (data['season'] >= selected_season4[0]) & (data1['college'].isin(selected_colleges))]
 
 # Create Bar plot
 _, col, _ = st.columns((0.1, 3, 0.1))
