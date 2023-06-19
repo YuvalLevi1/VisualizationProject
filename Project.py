@@ -117,8 +117,8 @@ with col:
                             hovertemplate='Season: %{x}<br>Weight: %{customdata[1]}')
 
         # Assign custom data to each trace
-        h = [[round(i, 2)] for i in list(filtered_data['player_height'])]
-        w = [[round(i, 2)] for i in list(filtered_data['player_weight'])]
+        h = [[str(round(i, 2)) + " CM"] for i in list(filtered_data['player_height'])]
+        w = [[str(round(i, 2)) + " KG"] for i in list(filtered_data['player_weight'])]
         r = [[round(i, 2)] for i in list(filtered_data['reb'])]
         a = [[round(i, 2)] for i in list(filtered_data['ast'])]
         p = [[round(i, 2)] for i in list(filtered_data['pts'])]
@@ -173,7 +173,7 @@ with col:
                 line=dict(color="rgba(200, 200, 200, 0.5)", width=1),
             )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 # Second plot - Map plot
 st.markdown("#### **Map Visualization**")
