@@ -413,6 +413,8 @@ with col2:
         figg = px.bar(filtered, x='Players', y='code', height=700, text='Players', hover_data=['country'])
         figg.update_traces(textposition='outside')
         figg.update_layout(yaxis_title='', bargap=0.13, yaxis=dict(tickmode='array', tickvals=filtered.index.tolist()))
+        figg.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')
+
         st.plotly_chart(figg, use_container_width=True)
 
 
