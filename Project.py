@@ -152,14 +152,28 @@ _, col, _ = st.columns((2, 3, 0.1))
 with col:
     st.markdown("[Project's GitHub Repository](https://github.com/YuvalLevi1/VisualizationProject)")
 
-_, col, _ = st.columns((0.9, 3, 0.9))
+_, col, _ = st.columns((0.8, 3, 0.9))
 with col:
-    st.markdown('This *Streamlit* App showing 4 different Visualization in order to discover interesting data and some statistics about the **NBA** League between the years 1996 to 2019.'
-                ' For each visualization there is filters in order to check specific aspects from the data.')
+    st.markdown('This *Streamlit* App main purpose is to show the effects of the physical changes of *NBA* players on their'
+                ' performance between the')
 
+_, col, _ = st.columns((0.87, 3, 0.9))
+with col:
+    st.markdown('years **1996 to 2019**. We are showing 4 different Visualization in order to discover interesting data and some statistics about')
+
+_, col, _ = st.columns((1.15, 3, 0.9))
+with col:
+    st.markdown('the *NBA* League. For each visualization there are filters in order to check specific aspects from the data.')
 
 
 # First plot
+st.markdown("#### **Lines Visualization**")
+st.write('**This visualization shows the changes in the *NBA* players average performance (eg. points, assists and rebounds) and physicality (weight and height) along the years.**')
+st.write("- Use the **slider** to choose *start* year by dragging the left point on the slider and *end* year to display by dragging the right point.")
+st.write("- Use the **team selector** to choose the *NBA* team/s you want display. *(**Notice**: if you dont select any team, the visualization will display on the entire *NBA* League)*.")
+st.write("- Use the **check boxes** on the right side of the visualization to choose what data to compare and display. *(**Notice**: choose at list one check box)*.")
+
+
 # Slide bar
 selected_season = create_slide_bar(1)
 
@@ -283,6 +297,11 @@ with col:
 
 # Second plot - Map plot
 st.markdown("#### **Map Visualization**")
+st.write("**This visualization shows how many *NBA* players comes from each country around the globe and the country's players performance & physical statistics.**")
+st.write("- Use the **slider** to choose year by dragging the left point on the slider.")
+st.write("- Use the **left selector** to choose either to display the data until the selected year or only for the selected year.")
+st.write("- Use the **check boxes** on the right to choose what areas of the world to display. *(**Notice**: choose at list one check box)*.")
+st.write("- Move your **Pointer** on the different countries on the map to see the country's players performance & physical statistics.")
 
 # create slide bar
 _, c, _ = st.columns((0.1, 2, 0.5))
@@ -303,7 +322,7 @@ else:
 
 with col2:
     st.write('**Choose map display:**')
-    usa = st.checkbox('USA', value=True)
+    usa = st.checkbox('USA', value=False)
     world = st.checkbox('Other World', value=True)
 
     if usa and world:
@@ -392,13 +411,18 @@ with col2:
     if usa or world:
         filtered = filtered.sort_values('Players', ascending=True)
         figg = px.bar(filtered, x='Players', y='code', height=700, text='Players', hover_data=['country'])
-        figg.update_traces(textposition='outside', textfont_size=24)
+        figg.update_traces(textposition='outside')
         figg.update_layout(yaxis_title='', bargap=0.13, yaxis=dict(tickmode='array', tickvals=filtered.index.tolist()))
         st.plotly_chart(figg, use_container_width=True)
 
 
-# Third plot
+# Third plot - Countries Bar Plot
 st.markdown("#### **Countries Bars Visualization**")
+st.write("**This visualization compares the number of *NBA* players comes from different countries around the globe along the years and the country's players performance & physical statistics.**")
+st.write("- Use the **slider** to choose *start* year by dragging the left point on the slider and *end* year to display by dragging the right point.")
+st.write("- Use the **countries selector** to choose the *NBA* country/ies you want display. *(**Notice**: if you dont select any country, the visualization won't work)*.")
+st.write("- Move your **Pointer** on the different bars on the visualization to see the country's players performance & physical statistics of the year the bar represents.")
+
 # Slide bar
 selected_season3 = create_slide_bar(3)
 # Countries filter
@@ -435,13 +459,23 @@ with col:
 
     else:
         filtered_data3 = filtered_data3[filtered_data3['country'] != 'USA']
-        filtered_data3 = filtered_data3.groupby(['season', 'country']).agg({'player_height': 'mean', 'player_weight': 'mean', 'player_name': 'nunique'}).reset_index()
+        filtered_data3 = filtered_data3.groupby(['season', 'country']).agg({
+            'player_height': 'mean', 'player_weight': 'mean',
+            'pts': 'mean',
+            'reb': 'mean',
+            'ast': 'mean',
+            'player_name': 'nunique'
+        }).reset_index()
+
         filtered_data3.rename(columns={'player_name': 'Players'}, inplace=True)
         filtered_data3['player_height'] = filtered_data3['player_height'].apply(lambda x: str(round(x, 2)) + " CM")
         filtered_data3['player_weight'] = filtered_data3['player_weight'].apply(lambda x: str(round(x, 2)) + " KG")
+        filtered_data3['pts'] = filtered_data3['pts'].apply(lambda x: round(x, 2))
+        filtered_data3['reb'] = filtered_data3['reb'].apply(lambda x: round(x, 2))
+        filtered_data3['ast'] = filtered_data3['ast'].apply(lambda x: round(x, 2))
 
-        fig3 = px.bar(filtered_data3, x='season', color='country', y='Players', barmode='group',
-                      hover_data=['player_height', 'player_weight'])
+        fig3 = px.bar(filtered_data3, x='season', color='country', y='Players', barmode='group', text='Players',
+                      hover_data=['pts', 'reb', 'ast', 'player_weight', 'player_height'])
 
         fig3.update_layout(
             title={
@@ -480,8 +514,13 @@ with col:
 
     st.plotly_chart(fig3, use_container_width=True)
 
-# Fourth plot
+# Fourth plot - Colleges Bar Plot
 st.markdown("#### **Colleges Bars Visualization**")
+st.write("**This visualization compares the number of *NBA* players comes from different colleges along the years and the college's players performance & physical statistics.**")
+st.write("- Use the **slider** to choose *start* year by dragging the left point on the slider and *end* year to display by dragging the right point.")
+st.write("- Use the **colleges selector** to choose the *NBA* college/s you want display. *(**Notice**: if you dont select any college, the visualization won't work)*.")
+st.write("- Move your **Pointer** on the different bars on the visualization to see the college's players performance & physical statistics of the year the bar represents.")
+
 # Slide bar
 selected_season4 = create_slide_bar(4)
 
@@ -507,13 +546,23 @@ with col:
         ax.set_title('No Data To Display!', fontsize=20, ha='center')
 
     else:
-        filtered_data4 = filtered_data4.groupby(['season', 'college']).agg({'player_height': 'mean', 'player_weight': 'mean', 'player_name': 'nunique'}).reset_index()
+        filtered_data4 = filtered_data4.groupby(['season', 'college']).agg({
+            'player_height': 'mean', 'player_weight': 'mean',
+            'pts': 'mean',
+            'reb': 'mean',
+            'ast': 'mean',
+            'player_name': 'nunique'
+        }).reset_index()
+
         filtered_data4.rename(columns={'player_name': 'Players'}, inplace=True)
         filtered_data4['player_height'] = filtered_data4['player_height'].apply(lambda x: str(round(x, 2)) + " CM")
         filtered_data4['player_weight'] = filtered_data4['player_weight'].apply(lambda x: str(round(x, 2)) + " KG")
+        filtered_data4['pts'] = filtered_data4['pts'].apply(lambda x: round(x, 2))
+        filtered_data4['reb'] = filtered_data4['reb'].apply(lambda x: round(x, 2))
+        filtered_data4['ast'] = filtered_data4['ast'].apply(lambda x: round(x, 2))
 
-        fig4 = px.bar(filtered_data4, x='season', color='college', y='Players', barmode='group',
-                      hover_data=['player_height', 'player_weight'])
+        fig4 = px.bar(filtered_data4, x='season', color='college', y='Players', barmode='group', text='Players',
+                      hover_data=['pts', 'reb', 'ast', 'player_weight', 'player_height'])
 
         fig4.update_layout(
             title={
