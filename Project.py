@@ -122,7 +122,6 @@ country_names = {
     'CPV': 'Cabo Verde'
 }
 
-
 teams = list(np.unique(data['team']))
 teams_dict = {}
 for t in teams:
@@ -290,9 +289,11 @@ _, c, _ = st.columns((0.1, 2, 0.5))
 with c:
     selected_season2 = st.select_slider("Drag the point on the slide bar to choose seasons range:", seasons, key=f's{2}')
 
-# create selector
-select = st.radio('Select display:', (f'Until {selected_season2} season', f'Only {selected_season2} season'), horizontal=True)
-s = ""
+_, col1, _, col2, _ = st.columns((0.1, 2, 0.1, 2, 0.1))
+with col1:
+    # create selector
+    select = st.radio('Select display:', (f'Until {selected_season2} season', f'Only {selected_season2} season'), horizontal=True)
+    s = ""
 if select == f'Until {selected_season2} season':
     filtered_data2 = data.loc[data['season'] <= selected_season2]
     s += f'Until {selected_season2} season'
@@ -300,10 +301,7 @@ else:
     filtered_data2 = data.loc[data['season'] == selected_season2]
     s += f'For {selected_season2} season'
 
-# Create map plot
-_, col, _, col2, _ = st.columns((0.1, 3.3, 0.1, 0.7, 0.1))
 with col2:
-
     st.write('**Choose map display:**')
     usa = st.checkbox('USA', value=True)
     world = st.checkbox('Other World', value=True)
@@ -340,6 +338,8 @@ with col2:
             'player_name': 'nunique'}).reset_index()
         filtered.rename(columns={'player_name': 'Players'}, inplace=True)
 
+# Create map plot
+_, col, _, col2, _ = st.columns((0.00001, 3.3, 0.01, 1.5, 0.1))
 with col:
     if (not usa and not world) or len(filtered) == 0:
         empty_geojson = {
@@ -373,11 +373,11 @@ with col:
             'xanchor': 'center',
             'yanchor': 'top',
             'font': {'size': 18}},
-            width=800, height=600,
+            width=800, height=700,
             annotations=[
                dict(
                    x=0.5,
-                   y=1.1,
+                   y=1.05,
                    xref='paper',
                    yref='paper',
                    text=s,
@@ -387,6 +387,15 @@ with col:
            ])
 
     st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    if usa or world:
+        # figg = px.bar(filtered, x='Players', color='Players', y='country', color_continuous_scale='viridis_r')
+        filtered = filtered.sort_values('Players', ascending=True)
+        figg = px.bar(filtered, x='Players', y='code', height=700, text='Players', hover_data=['country'])
+        figg.update_traces(textposition='outside', textfont_size=24)
+        figg.update_layout(yaxis_title='', bargap=0.13, yaxis=dict(tickmode='array', tickvals=filtered.index.tolist()))
+        st.plotly_chart(figg, use_container_width=True)
 
 
 # Third plot
