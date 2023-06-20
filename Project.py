@@ -417,7 +417,6 @@ with col2:
 
         st.plotly_chart(figg, use_container_width=True)
 
-
 # Third plot - Countries Bar Plot
 st.markdown("#### **Countries Bars Visualization**")
 st.write("**This visualization compares the number of *NBA* players comes from different countries around the globe along the years and the country's players performance & physical statistics.**")
