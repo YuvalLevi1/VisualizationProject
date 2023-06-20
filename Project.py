@@ -390,7 +390,6 @@ with col:
 
 with col2:
     if usa or world:
-        # figg = px.bar(filtered, x='Players', color='Players', y='country', color_continuous_scale='viridis_r')
         filtered = filtered.sort_values('Players', ascending=True)
         figg = px.bar(filtered, x='Players', y='code', height=700, text='Players', hover_data=['country'])
         figg.update_traces(textposition='outside', textfont_size=24)
