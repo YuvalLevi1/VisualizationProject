@@ -143,6 +143,21 @@ def create_slide_bar(key, text="Drag the points on the slide bar to choose seaso
 
 
 # Title and Description
+_, col, _ = st.columns((1.8, 3, 0.1))
+with col:
+    st.title('NBA Statistics')
+_, col, _ = st.columns((1.1, 3, 0.1))
+with col:
+    st.subheader('Visualization Project by Yuval Levi and Maxim Katz')
+_, col, _ = st.columns((2, 3, 0.1))
+with col:
+    st.markdown("[Project's GitHub Repository](https://github.com/YuvalLevi1/VisualizationProject)")
+
+_, col, _ = st.columns((0.9, 3, 0.9))
+with col:
+    st.markdown('This *Streamlit* App showing 4 different Visualization in order to discover interesting data and some statistics about the **NBA** League between the years 1996 to 2019.'
+                ' For each visualization there is filters in order to check specific aspects from the data.')
+
 
 
 # First plot
