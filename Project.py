@@ -166,13 +166,12 @@ with col:
     st.markdown('the *NBA* League. For each visualization there are filters in order to check specific aspects from the data.')
 
 
-# First plot
+# First plot - Line Plot
 st.markdown("#### **Lines Visualization**")
 st.write('**This visualization shows the changes in the *NBA* players average performance (eg. points, assists and rebounds) and physicality (weight and height) along the years.**')
 st.write("- Use the **slider** to choose *start* year by dragging the left point on the slider and *end* year to display by dragging the right point.")
 st.write("- Use the **team selector** to choose the *NBA* team/s you want display. *(**Notice**: if you dont select any team, the visualization will display on the entire *NBA* League)*.")
 st.write("- Use the **check boxes** on the right side of the visualization to choose what data to compare and display. *(**Notice**: choose at list one check box)*.")
-
 
 # Slide bar
 selected_season = create_slide_bar(1)
@@ -189,7 +188,7 @@ with col2:
     else:
         sel_teams.append('NBA_LOGOS/NBA_LOGO.jpg')
     st.image(sel_teams, width=80)
-
+print(selected_season)
 # Create the graph
 if not selected_team:
     filtered_data = data.loc[(data['season'] <= selected_season[1]) & (data['season'] >= selected_season[0])]
@@ -219,16 +218,16 @@ with col:
     else:
         filtered_data = filtered_data.groupby('season')[['ptss', 'rebb', 'astt', 'height', 'weight', 'pts', 'reb', 'ast',
                                                          'player_height', 'player_weight']].mean().reset_index()
-        seasons1 = [i for i in range(selected_season[0], selected_season[1])]
-        trace1 = go.Scatter(x=seasons1, y=list(filtered_data['ptss']), name='Points',
+        seasons1 = [i for i in range(selected_season[0], selected_season[1]+1)]
+        trace1 = go.Scatter(x=seasons1, y=list(filtered_data['ptss']), name='Points', mode='lines+markers',
                             hovertemplate='Season: %{x}<br>Points: %{customdata[4]}')
-        trace2 = go.Scatter(x=seasons1, y=list(filtered_data['height']), name='Height',
+        trace2 = go.Scatter(x=seasons1, y=list(filtered_data['height']), name='Height', mode='lines+markers',
                             hovertemplate='Season: %{x}<br>Height: %{customdata[0]}')
-        trace3 = go.Scatter(x=seasons1, y=list(filtered_data['rebb']), name='Rebounds',
+        trace3 = go.Scatter(x=seasons1, y=list(filtered_data['rebb']), name='Rebounds', mode='lines+markers',
                             hovertemplate='Season: %{x}<br>Rebounds: %{customdata[2]}')
-        trace4 = go.Scatter(x=seasons1, y=list(filtered_data['astt']), name='Assists',
+        trace4 = go.Scatter(x=seasons1, y=list(filtered_data['astt']), name='Assists', mode='lines+markers',
                             hovertemplate='Season: %{x}<br>Assists: %{customdata[3]}')
-        trace5 = go.Scatter(x=seasons1, y=list(filtered_data['weight']), name='Weight',
+        trace5 = go.Scatter(x=seasons1, y=list(filtered_data['weight']), name='Weight', mode='lines+markers',
                             hovertemplate='Season: %{x}<br>Weight: %{customdata[1]}')
 
         # Assign custom data to each trace
@@ -262,6 +261,8 @@ with col:
            ]
                            )
         fig = go.Figure(layout=layout)
+        fig.update_layout(xaxis=dict(dtick=1))
+
         if show_line1:
             fig.add_trace(trace1)
             features.append('ptss')
@@ -283,7 +284,7 @@ with col:
         calc_df = filtered_data[features]
         y0 = calc_df.min().min() - 0.01
         y1 = calc_df.max().max() + 0.01
-        for year in range(selected_season[0], selected_season[1]):
+        for year in range(selected_season[0], selected_season[1]+1):
             fig.add_shape(
                 type="line",
                 x0=year,
