@@ -168,8 +168,8 @@ with col:
 
 # First plot - Line Plot
 st.markdown("#### **Lines Visualization**")
-st.write('**This visualization shows the changes in the *NBA* players average performance (eg. points, assists and rebounds) and physicality (weight and height) along the years.**')
-st.write("- Use the **slider** to choose *start* year by dragging the left point on the slider and *end* year to display by dragging the right point.")
+st.write('**This visualization shows the changes in the *NBA* players average performance (eg. points, assists and rebounds) and physicality (weight and height) along the seasons.**')
+st.write("- Use the **slider** to choose *start* season by dragging the left point on the slider and *end* season to display by dragging the right point.")
 st.write("- Use the **team selector** to choose the *NBA* team/s you want display. *(**Notice**: if you dont select any team, the visualization will display on the entire *NBA* League)*.")
 st.write("- Use the **check boxes** on the right side of the visualization to choose what data to compare and display. *(**Notice**: choose at list one check box)*.")
 
@@ -299,8 +299,8 @@ with col:
 # Second plot - Map plot
 st.markdown("#### **Map Visualization**")
 st.write("**This visualization shows how many *NBA* players comes from each country around the globe and the country's players performance & physical statistics.**")
-st.write("- Use the **slider** to choose year by dragging the left point on the slider.")
-st.write("- Use the **left selector** to choose either to display the data until the selected year or only for the selected year.")
+st.write("- Use the **slider** to choose season by dragging the left point on the slider.")
+st.write("- Use the **left selector** to choose either to display the data until the selected season or only for the selected season.")
 st.write("- Use the **check boxes** on the right to choose what areas of the world to display. *(**Notice**: choose at list one check box)*.")
 st.write("- Move your **Pointer** on the different countries on the map to see the country's players performance & physical statistics.")
 
@@ -419,10 +419,10 @@ with col2:
 
 # Third plot - Countries Bar Plot
 st.markdown("#### **Countries Bars Visualization**")
-st.write("**This visualization compares the number of *NBA* players comes from different countries around the globe along the years and the country's players performance & physical statistics.**")
-st.write("- Use the **slider** to choose *start* year by dragging the left point on the slider and *end* year to display by dragging the right point.")
+st.write("**This visualization compares the number of *foreign* *NBA* players comes from different countries outside the USA along the seasons and the country's players performance & physical statistics.**")
+st.write("- Use the **slider** to choose *start* season by dragging the left point on the slider and *end* season to display by dragging the right point.")
 st.write("- Use the **countries selector** to choose the *NBA* country/ies you want display. *(**Notice**: if you dont select any country, the visualization won't work)*.")
-st.write("- Move your **Pointer** on the different bars on the visualization to see the country's players performance & physical statistics of the year the bar represents.")
+st.write("- Move your **Pointer** on the different bars on the visualization to see the country's players performance & physical statistics of the season the bar represents.")
 
 # Slide bar
 selected_season3 = create_slide_bar(3)
@@ -480,14 +480,15 @@ with col:
 
         fig3.update_layout(
             title={
-                'text': 'Number of Players by Season and Country',
-                'x': 0.45,
-                'y': 1,
+                'text': 'Comparing the number of foreign NBA players from countries outside the US',
+                'font': {'size': 18},
+                'y': 0.95,
+                'x': 0.485,
                 'xanchor': 'center',
                 'yanchor': 'top',
-                'font': {'size': 18}},
-            title_x=0.4,  # Position the title at the center of the x-axis
-            title_y=0.9,  # Position the title at the top of the y-axis
+                 },
+            # title_x=0.4,  # Position the title at the center of the x-axis
+            # title_y=0.9,  # Position the title at the top of the y-axis
             xaxis=dict(
                 tickmode='linear',  # Use linear mode for continuous range
                 tick0=min(filtered_data3['season']),  # Set the starting tick to the minimum year value
@@ -496,6 +497,17 @@ with col:
             ),
             xaxis_title='NBA Season',
             yaxis_title='Number of Players',
+            annotations=[
+                dict(
+                    x=0.5,
+                    y=1.05,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Between {selected_season3[0]} season to {selected_season3[1]} season for the selected countries',
+                    showarrow=False,
+                    font=dict(size=20)
+                )
+            ]
         )
         x_ticks = sorted(list(set(filtered_data3['season'])))
         for x in x_ticks:
@@ -517,10 +529,10 @@ with col:
 
 # Fourth plot - Colleges Bar Plot
 st.markdown("#### **Colleges Bars Visualization**")
-st.write("**This visualization compares the number of *NBA* players comes from different colleges along the years and the college's players performance & physical statistics.**")
-st.write("- Use the **slider** to choose *start* year by dragging the left point on the slider and *end* year to display by dragging the right point.")
+st.write("**This visualization compares the number of *NBA* players comes from different colleges along the seasons and the college's players performance & physical statistics.**")
+st.write("- Use the **slider** to choose *start* season by dragging the left point on the slider and *end* season to display by dragging the right point.")
 st.write("- Use the **colleges selector** to choose the *NBA* college/s you want display. *(**Notice**: if you dont select any college, the visualization won't work)*.")
-st.write("- Move your **Pointer** on the different bars on the visualization to see the college's players performance & physical statistics of the year the bar represents.")
+st.write("- Move your **Pointer** on the different bars on the visualization to see the college's players performance & physical statistics of the season the bar represents.")
 
 # Slide bar
 selected_season4 = create_slide_bar(4)
@@ -567,14 +579,12 @@ with col:
 
         fig4.update_layout(
             title={
-                'text': 'Number of Players by Season and Colleges',
-                'x': 0.45,
-                'y': 1,
+                'text': 'Comparing the number of NBA players came from the selected colleges',
+                'x': 0.46,
+                'y': 0.95,
                 'xanchor': 'center',
                 'yanchor': 'top',
                 'font': {'size': 18}},
-            title_x=0.4,  # Position the title at the center of the x-axis
-            title_y=0.9,  # Position the title at the top of the y-axis
             xaxis=dict(
                 tickmode='linear',  # Use linear mode for continuous range
                 tick0=min(filtered_data4['season']),  # Set the starting tick to the minimum year value
@@ -583,6 +593,17 @@ with col:
             ),
             xaxis_title='NBA Season',
             yaxis_title='Number of Players',
+            annotations=[
+                dict(
+                    x=0.5,
+                    y=1.05,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Between {selected_season3[0]} season to {selected_season3[1]} season',
+                    showarrow=False,
+                    font=dict(size=20)
+                )
+            ]
         )
         x_ticks = sorted(list(set(filtered_data4['season'])))
         for x in x_ticks:
