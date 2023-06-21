@@ -509,7 +509,8 @@ with col:
                 )
             ]
         )
-        x_ticks = sorted(list(set(filtered_data3['season'])))
+        lst = sorted(list(set(filtered_data3['season'])))
+        x_ticks = [i for i in range(lst[0], lst[-1] + 1)]
         for x in x_ticks:
             fig3.add_shape(
                 type="line",
@@ -599,13 +600,14 @@ with col:
                     y=1.05,
                     xref='paper',
                     yref='paper',
-                    text=f'Between {selected_season3[0]} season to {selected_season3[1]} season',
+                    text=f'Between {selected_season4[0]} season to {selected_season4[1]} season',
                     showarrow=False,
                     font=dict(size=20)
                 )
             ]
         )
-        x_ticks = sorted(list(set(filtered_data4['season'])))
+        lst = sorted(list(set(filtered_data4['season'])))
+        x_ticks = [i for i in range(lst[0], lst[-1]+1)]
         for x in x_ticks:
             fig4.add_shape(
                 type="line",
