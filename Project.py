@@ -134,7 +134,7 @@ data1 = data.dropna(subset=['college'])
 colleges = list(np.unique(data1['college']))
 
 
-def create_slide_bar(key, text="Drag the points on the slide bar to choose seasons range:"):
+def create_slide_bar(key, text="**Drag the points on the slide bar to choose seasons range:**"):
     _, c, _ = st.columns((0.1, 2, 0.5))
     with c:
         selected = st.select_slider(text, seasons, key=f's{key}', value=(1996, 2019))
@@ -179,7 +179,7 @@ selected_season = create_slide_bar(1)
 # Teams filter
 _, col1, _, col2, _ = st.columns((0.1, 1.4, .1, 2.2, 0.1))
 with col1:
-    selected_team = st.multiselect('Select NBA teams:', teams)
+    selected_team = st.multiselect('**Select NBA teams:**', teams)
 with col2:
     sel_teams = []
     if selected_team:
@@ -307,12 +307,12 @@ st.write("- Move your **Pointer** on the different countries on the map to see t
 # create slide bar
 _, c, _ = st.columns((0.1, 2, 0.5))
 with c:
-    selected_season2 = st.select_slider("Drag the point on the slide bar to choose seasons range:", seasons, key=f's{2}')
+    selected_season2 = st.select_slider("**Drag the point on the slide bar to choose seasons range:**", seasons, key=f's{2}')
 
 _, col1, _, col2, _ = st.columns((0.1, 2, 0.1, 2, 0.1))
 with col1:
     # create selector
-    select = st.radio('Select display:', (f'Until {selected_season2} season', f'Only {selected_season2} season'), horizontal=True)
+    select = st.radio('**Select display:**', (f'Until {selected_season2} season', f'Only {selected_season2} season'), horizontal=True)
     s = ""
 if select == f'Until {selected_season2} season':
     filtered_data2 = data.loc[data['season'] <= selected_season2]
@@ -411,8 +411,7 @@ with col:
 with col2:
     if usa or world:
         filtered = filtered.sort_values('Players', ascending=True)
-        figg = px.bar(filtered, x='Players', y='code', height=700, text='Players', hover_data=['country'])
-        figg.update_traces(textposition='outside')
+        figg = px.bar(filtered, x='Players', y='code', height=700, hover_data=['country'])
         figg.update_layout(yaxis_title='', bargap=0.13, yaxis=dict(tickmode='array', tickvals=filtered.index.tolist()))
         figg.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgray')
 
@@ -430,7 +429,7 @@ selected_season3 = create_slide_bar(3)
 # Countries filter
 _, col1, _, col2, _ = st.columns((0.1, 1.4, .1, 2.2, 0.1))
 with col1:
-    selected_countries = st.multiselect('Select countries to display:', countries)
+    selected_countries = st.multiselect('**Select countries to display:**', countries)
 with col2:
     sel_countries = []
     if selected_countries:
@@ -529,7 +528,7 @@ selected_season4 = create_slide_bar(4)
 # Colleges filter
 _, col, _ = st.columns((0.01, 1.4, 0.1))
 with col:
-    selected_colleges = st.multiselect('Select Colleges to display:', colleges)
+    selected_colleges = st.multiselect('**Select Colleges to display:**', colleges)
 
 # Data filtering
 if not selected_colleges:
