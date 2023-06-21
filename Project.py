@@ -244,7 +244,7 @@ with col:
             'text': 'Comparison between the physicality of the players and their performance',
             'font': {'size': 18},
             'y': 0.95,
-            'x': 0.5,
+            'x': 0.535,
             'xanchor': 'center',
             'yanchor': 'top'},
             xaxis_title='NBA Season', yaxis_title='Normalized Value',
