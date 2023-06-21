@@ -152,19 +152,16 @@ _, col, _ = st.columns((2, 3, 0.1))
 with col:
     st.markdown("[Project's GitHub Repository](https://github.com/YuvalLevi1/VisualizationProject)")
 
-_, col, _ = st.columns((0.8, 3, 0.9))
-with col:
-    st.markdown('This *Streamlit* App main purpose is to show the effects of the physical changes of *NBA* players on their'
-                ' performance between the')
 
-_, col, _ = st.columns((0.87, 3, 0.9))
+_, col, _ = st.columns((1.4, 3, 1.8))
 with col:
-    st.markdown('years **1996 to 2019**. We are showing 4 different Visualization in order to discover interesting data and some statistics about')
-
-_, col, _ = st.columns((1.15, 3, 0.9))
-with col:
-    st.markdown('the *NBA* League. For each visualization there are filters in order to check specific aspects from the data.')
-
+    st.markdown(
+        "<p style='text-align: center;'>This <em>Streamlit</em> App main purpose is to show the effects of the physical "
+        "changes of <em>NBA</em> players on their performance between the years <strong>1996 to 2019</strong>. We are showing 4 different Visualization"
+        "in order to discover interesting data and some statistics about the <em>NBA</em> League. For each visualization, there are filters in order to"
+        "check specific aspects from the data.</p>",
+        unsafe_allow_html=True
+    )
 
 # First plot - Line Plot
 st.markdown("#### **Lines Visualization**")
